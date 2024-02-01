@@ -1,12 +1,13 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.sql.Time;
+
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
-public class ContactManagmentSystem {
+public class ContactManagementSystem {
     static ContactList list=new ContactList();
     static String username;
 
@@ -16,22 +17,30 @@ public class ContactManagmentSystem {
 
 
       loop:  while (true) {
-            System.out.println("Enter 1 to LogIn/ 2 to Registration.");
-            Scanner in=new Scanner(System.in);
-            int input=in.nextInt();
+          try {
+              System.out.println("Enter 1 to LogIn/ 2 to Registration.");
+              Scanner in = new Scanner(System.in);
+              int input = in.nextInt();
 
-            switch (input){
-                case 1:
-                       login(userlist);
-                       break loop;
+              switch (input) {
+                  case 1:
+                      login(userlist);
+                      break loop;
 
-                case 2:
-                    registerUser(userlist);
-                    saveUser(userFile,userlist);
+                  case 2:
+                      registerUser(userlist);
+                      saveUser(userFile, userlist);
 
-                    break ;
+                      break;
 
-            }
+                  default:
+                      System.out.println("Invalid.");
+
+              }
+          }
+          catch (InputMismatchException e){
+              System.out.println("Enter only numbers.");
+          }
         }
 
         String filename= username+".csv";
@@ -44,47 +53,41 @@ public class ContactManagmentSystem {
             System.out.println("\t"+"-----------------Main Menu-------------------------");
             System.out.println("Enter 1 to Add Contact/ 2 to view Contact List/3 to update Contact/ 4 to remove contact/ 0 to exit.");
             int choice= scan.nextInt();
-            switch (choice){
-                case 1:
+            switch (choice) {
+                case 1 -> {
                     addContact();
                     System.out.println("Returned to main menu...");
-                    break;
-
-                case 2:
+                }
+                case 2 -> {
                     showContactList();
                     System.out.println("Returned to main menu...");
-
-                    break;
-
-                case 3:
+                }
+                case 3 -> {
                     list.showContactList();
-                    Scanner input=new Scanner(System.in);
+                    Scanner input = new Scanner(System.in);
                     System.out.println("Enter the number of contact you want to update");
-                    int num=input.nextInt();
+                    int num = input.nextInt();
                     list.updateContactList(num);
-
                     System.out.println("Returned to main menu...");
-                    break;
-
-                case 4:
+                }
+                case 4 -> {
                     list.showContactList();
-                    Scanner input1=new Scanner(System.in);
+                    Scanner input1 = new Scanner(System.in);
                     System.out.println("Enter the number of contact you want to delete:");
-                    int n=input1.nextInt();
+                    int n = input1.nextInt();
                     list.removeContact(n);
                     System.out.println("Returned to main menu...");
-                    break;
-
-                case 0:
+                }
+                case 0 -> {
                     save(f);
                     System.out.println("Exiting the system.");
                     TimeUnit.SECONDS.sleep(2);
                     System.exit(0);
-
-                default:
+                }
+                default -> {
                     System.out.println("Invalid Input");
                     System.out.println("Returned to main menu...");
-                    break;
+                }
             }
 
         }
@@ -139,6 +142,9 @@ public class ContactManagmentSystem {
     public static void save(File f) throws FileNotFoundException {
         PrintWriter out=new PrintWriter(f);
         for( Contact c:list){
+            if(c.getName().equals("Null")){
+                continue;
+            }
             out.println(c.getName()+","+c.getPhNum()+","+c.getEmail()+","+c.getAddress());
         }
         out.close();
@@ -146,11 +152,15 @@ public class ContactManagmentSystem {
 
     public static void readContactList(File f) throws FileNotFoundException {
         Scanner scanner=new Scanner(f);
-        while (scanner.hasNextLine()){
-            StringTokenizer s=new StringTokenizer(scanner.nextLine(),",");
-            if(s.hasMoreTokens()){
-            Contact c= new Contact(s.nextToken(),s.nextToken(),s.nextToken(),s.nextToken());
-            list.addContact(c);}
+        while (scanner.hasNextLine()) {
+            StringTokenizer s = new StringTokenizer(scanner.nextLine(), ",");
+            //if ((!s.nextToken().equals("Null"))) {
+                Contact c = new Contact(s.nextToken(), s.nextToken(), s.nextToken(), s.nextToken());
+                list.addContact(c);
+                if(c.getName().equals("Null")){
+                    list.remove(c);
+                }
+
 
 
         }
@@ -158,20 +168,31 @@ public class ContactManagmentSystem {
     }
 
     public static void registerUser(UserList userlist) throws FileNotFoundException {
-        Scanner scanner=new Scanner(System.in);
+
+        while (true){Scanner scanner=new Scanner(System.in);
         System.out.println("----------Registration----------");
         System.out.println("Enter username:");
         String name=scanner.nextLine();
         System.out.println("Enter password");
         String pw=scanner.nextLine();
+        if(name=="" || pw==""){
+            System.out.println("Name or Password cannot be empty.");
+            continue;
+        }
 
         User u=new User(name,pw);
         userlist.add(u);
         String filename=name+".csv";
         String file="C:\\Users\\iileg\\IdeaProjects\\Contact Management System\\UserList\\"+filename;
         File f=new File(file);
-        PrintWriter out=new PrintWriter(f);
-        out.println(name+","+pw);
+       PrintWriter out=new PrintWriter(f);
+        out.println("Null,Null,Null,Null");
+        out.close();
+        break;
+
+        }
+       // Runtime.getRuntime().exec("cls");
+
 
 
     }
@@ -194,8 +215,12 @@ public class ContactManagmentSystem {
             String name = scan.nextLine();
             System.out.println("Enter password:");
             String password = scan.nextLine();
+            if(name=="" || password==""){
+                System.out.println("Name or Password cannot be empty.");
+                continue;
+            }
 
-            if (userlist.authenticateUser(name, password)) {
+            if (userlist.authenticateUser(name.trim(), password.trim())) {
                 username = name;
                 break;
             }
