@@ -8,11 +8,12 @@ import java.util.concurrent.TimeUnit;
 
 public class ContactManagmentSystem {
     static ContactList list=new ContactList();
+    static String username;
 
     public static void main(String[] args) throws InterruptedException, FileNotFoundException {
         File userFile=new File("user.csv");
         UserList userlist=new UserList(userFile);
-        String username;
+
 
       loop:  while (true) {
             System.out.println("Enter 1 to LogIn/ 2 to Registration.");
@@ -21,23 +22,7 @@ public class ContactManagmentSystem {
 
             switch (input){
                 case 1:
-                    System.out.println("---------Log In----------");
-                    while (true) {
-                       Scanner scan = new Scanner(System.in);
-                       System.out.println("Enter username:");
-                       String name = scan.nextLine();
-                       System.out.println("Enter password:");
-                       String password = scan.nextLine();
-
-                       if (userlist.authenticateUser(name, password)) {
-                       username = name;
-                       break;
-                }
-                       else {
-                       System.out.println("Incorrect.");
-                           }
-
-                }
+                       login(userlist);
                        break loop;
 
                 case 2:
@@ -163,8 +148,9 @@ public class ContactManagmentSystem {
         Scanner scanner=new Scanner(f);
         while (scanner.hasNextLine()){
             StringTokenizer s=new StringTokenizer(scanner.nextLine(),",");
+            if(s.hasMoreTokens()){
             Contact c= new Contact(s.nextToken(),s.nextToken(),s.nextToken(),s.nextToken());
-            list.addContact(c);
+            list.addContact(c);}
 
 
         }
@@ -187,6 +173,7 @@ public class ContactManagmentSystem {
         PrintWriter out=new PrintWriter(f);
         out.println(name+","+pw);
 
+
     }
 
     public static void saveUser(File f,UserList userlist) throws FileNotFoundException {
@@ -197,5 +184,25 @@ public class ContactManagmentSystem {
         out.close();
 
 
+    }
+
+    public static void login(UserList userlist){
+        System.out.println("---------Log In----------");
+        while (true) {
+            Scanner scan = new Scanner(System.in);
+            System.out.println("Enter username:");
+            String name = scan.nextLine();
+            System.out.println("Enter password:");
+            String password = scan.nextLine();
+
+            if (userlist.authenticateUser(name, password)) {
+                username = name;
+                break;
+            }
+            else {
+                System.out.println("Incorrect.");
+            }
+
+        }
     }
 }

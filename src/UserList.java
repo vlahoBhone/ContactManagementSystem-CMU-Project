@@ -8,9 +8,15 @@ public class UserList extends ArrayList<User> {
     public  UserList(File file) throws FileNotFoundException {
         Scanner scanner=new Scanner(file);
         while (scanner.hasNextLine()){
+
             StringTokenizer s=new StringTokenizer(scanner.nextLine(),",");
+            if(s.hasMoreTokens()){
             User user=new User(s.nextToken(),s.nextToken());
-            this.add(user);
+            this.add(user);}
+
+            else {
+                System.out.println("Register.");
+            }
         }
 
 
